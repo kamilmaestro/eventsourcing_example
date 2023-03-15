@@ -1,9 +1,6 @@
 package shop;
 
-import com.eventstore.dbclient.EventData;
-import com.eventstore.dbclient.EventDataBuilder;
-import com.eventstore.dbclient.EventStoreDBClient;
-import com.eventstore.dbclient.WriteResult;
+import com.eventstore.dbclient.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,10 +8,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import java.util.Arrays;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 final class ShopEventsService {
 
@@ -30,11 +27,15 @@ final class ShopEventsService {
     this.eventStore = eventStore;
   }
 
-  CompletableFuture<WriteResult> appendEvents(String streamName, List<ShoppingCartEvent> events) {
-    return eventStore.appendToStream(
-        streamName,
-        events.stream().map(this::serialize).iterator()
-    );
+  WriteResult appendEvents(String streamName, List<ShoppingCartEvent> events) {
+    try {
+      return eventStore.appendToStream(
+          streamName,
+          events.stream().map(this::serialize).iterator()
+      ).get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private EventData serialize(Object event) {
@@ -47,6 +48,32 @@ final class ShopEventsService {
           )
           .build();
     } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  ShoppingCart getShoppingCart(String streamName) {
+    try {
+      final List<ShoppingCartEvent> events = eventStore.readStream(streamName, ReadStreamOptions.get())
+          .get()
+          .getEvents()
+          .stream()
+          .map(this::deserialize)
+          .filter(ShoppingCartEvent.class::isInstance)
+          .map(ShoppingCartEvent.class::cast)
+          .toList();
+
+      return ShoppingCart.getShoppingCartFrom(events);
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private Object deserialize(ResolvedEvent resolvedEvent) {
+    try {
+      var eventClass = Class.forName(resolvedEvent.getOriginalEvent().getEventType());
+      return EVENTS_MAPPER.readValue(resolvedEvent.getEvent().getEventData(), eventClass);
+    } catch (IOException | ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
   }

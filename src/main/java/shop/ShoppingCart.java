@@ -65,7 +65,6 @@ class ShoppingCart {
   }
 
   private void apply(ShoppingCartCancelled event) {
-    this.productItems.clear();
     this.status = ShoppingCartStatus.CANCELLED;
   }
 

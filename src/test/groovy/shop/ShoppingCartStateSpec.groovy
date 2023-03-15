@@ -1,18 +1,7 @@
 package shop
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import spock.lang.Specification
-import com.eventstore.dbclient.*
 import java.time.Instant
-import java.time.OffsetDateTime
-import java.util.concurrent.CompletableFuture
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import static shop.ShoppingCart.ShoppingCartStatus.CANCELLED
 import static shop.ShoppingCart.ShoppingCartStatus.CONFIRMED
 import static shop.ShoppingCart.ShoppingCartStatus.PENDING
@@ -100,7 +89,7 @@ class ShoppingCartStateSpec extends Specification implements CartSample {
       ShoppingCart shoppingCart = ShoppingCart.getShoppingCartFrom(events)
       shoppingCart.id == shoppingCartId
       shoppingCart.clientId == clientId
-      shoppingCart.productItems == []
+      shoppingCart.productItems == [shirt]
       shoppingCart.status == CANCELLED
   }
 
