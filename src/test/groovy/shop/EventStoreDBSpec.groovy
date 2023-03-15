@@ -34,11 +34,6 @@ class EventStoreDBSpec extends Specification {
     service = new ShopEventsService(eventStore)
     streamName = "shopping_cart-%s".formatted(shoppingCartId)
   }
-//  void cleanup() {
-//    eventStore.tombstoneStream("shopping_cart-%s".formatted(shoppingCartId))
-//    eventStore.deleteStream("shopping_cart-%s".formatted(shoppingCartId), DeleteStreamOptions.get())
-//    eventStore.shutdown()
-//  }
 
   def "should append events" () {
     given: "events occured for a shopping cart: $shoppingCartId"

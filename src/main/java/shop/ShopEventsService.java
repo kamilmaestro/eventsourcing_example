@@ -53,29 +53,13 @@ final class ShopEventsService {
   }
 
   ShoppingCart getShoppingCart(String streamName) {
-    try {
-      final List<ShoppingCartEvent> events = eventStore.readStream(streamName, ReadStreamOptions.get())
-          .get()
-          .getEvents()
-          .stream()
-          .map(this::deserialize)
-          .filter(ShoppingCartEvent.class::isInstance)
-          .map(ShoppingCartEvent.class::cast)
-          .toList();
-
-      return ShoppingCart.getShoppingCartFrom(events);
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException(e);
-    }
+    throw new UnsupportedOperationException("Use eventStore.readStream and deserialize events to create ShoppingCart");
   }
 
   private Object deserialize(ResolvedEvent resolvedEvent) {
-    try {
-      var eventClass = Class.forName(resolvedEvent.getOriginalEvent().getEventType());
-      return EVENTS_MAPPER.readValue(resolvedEvent.getEvent().getEventData(), eventClass);
-    } catch (IOException | ClassNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+    throw new UnsupportedOperationException(
+        "Use mapper to read value -> readValue(eventData from resolvedEvent, eventClassName from resolvedEvent)"
+    );
   }
 
 }
