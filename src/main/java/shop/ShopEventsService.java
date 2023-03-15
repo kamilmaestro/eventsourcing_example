@@ -28,54 +28,13 @@ final class ShopEventsService {
   }
 
   WriteResult appendEvents(String streamName, List<ShoppingCartEvent> events) {
-    try {
-      return eventStore.appendToStream(
-          streamName,
-          events.stream().map(this::serialize).iterator()
-      ).get();
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException(e);
-    }
+    throw new UnsupportedOperationException(
+        "Use eventStore.appendToStream() to append events and then serialize events with the usage of serialize(event) method !!!"
+    );
   }
 
   private EventData serialize(Object event) {
-    try {
-      return EventDataBuilder
-          .json(
-              UUID.randomUUID(),
-              event.getClass().getTypeName(),
-              EVENTS_MAPPER.writeValueAsBytes(event)
-          )
-          .build();
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  ShoppingCart getShoppingCart(String streamName) {
-    try {
-      final List<ShoppingCartEvent> events = eventStore.readStream(streamName, ReadStreamOptions.get())
-          .get()
-          .getEvents()
-          .stream()
-          .map(this::deserialize)
-          .filter(ShoppingCartEvent.class::isInstance)
-          .map(ShoppingCartEvent.class::cast)
-          .toList();
-
-      return ShoppingCart.getShoppingCartFrom(events);
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private Object deserialize(ResolvedEvent resolvedEvent) {
-    try {
-      var eventClass = Class.forName(resolvedEvent.getOriginalEvent().getEventType());
-      return EVENTS_MAPPER.readValue(resolvedEvent.getEvent().getEventData(), eventClass);
-    } catch (IOException | ClassNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+    throw new UnsupportedOperationException("Create EventData object converting it from event -> EventDataBuilder !!!");
   }
 
 }
