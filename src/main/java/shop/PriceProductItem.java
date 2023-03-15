@@ -5,8 +5,4 @@ import java.util.UUID;
 
 record PriceProductItem(UUID productId, int quantity, BigDecimal price) {
 
-//  double totalAmount() {
-//    return quantity * unitPrice;
-//  }
-
 }
