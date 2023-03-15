@@ -1,14 +1,23 @@
 package shop
 
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import spock.lang.Specification
-
+import com.eventstore.dbclient.*
 import java.time.Instant
+import java.time.OffsetDateTime
+import java.util.concurrent.CompletableFuture
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import static shop.ShoppingCart.ShoppingCartStatus.CANCELLED
 import static shop.ShoppingCart.ShoppingCartStatus.CONFIRMED
 import static shop.ShoppingCart.ShoppingCartStatus.PENDING
 
-class ShoppingCartEventsSpec extends Specification implements CartSample {
+class ShoppingCartStateSpec extends Specification implements CartSample {
 
   static UUID clientId = UUID.fromString("6dff4cee-5a3c-4dc7-9305-d18003eea0fa")
   static UUID shoppingCartId = UUID.fromString("814d8653-57a7-42a9-9828-8464589d0dfd")
